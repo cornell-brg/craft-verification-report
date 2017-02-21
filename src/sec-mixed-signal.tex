@@ -13,8 +13,8 @@ based on a first-order $\Delta\Sigma$ frequency to digital converter
 off-chip SPI interface, then accumulated and filtered. The filter's
 output controls the frequency of one of two ring oscillators that cover
 different frequency ranges. The DLDO is digital in the sense that the
-feedback control is completely digital. Rather than modulating the
-conductance of a single PMOS pass transistor, we use an array of
+feedback control is completely digital, and rather than modulating the
+conductance of a single PMOS pass transistor in an analog fashion, we use an array of
 binary-weighted, digitally-driven PMOS transistors. We use a mix of
 system-, register-transfer-, gate-, and transistor-level modeling to
 verify both the PLL and DLDO in isolation.
@@ -84,25 +84,21 @@ that this iterative design process can be automated in the future.
 
 \paragraph{Testing the DLDO Custom Cell Transistor-Level Models}
 The power switches and comparators are the only part of the mixed-signal
-subsystem that do not use standard cells. Fortunately, very simple
-transistor-level simulations can be performed to characterize their
-respective metrics, very similar to how conventional digital standard
-cells are characterized before being included in standard-cell libraries.
-\fixme{Patrick, more here?}
+subsystem that do not use standard cells. Fortunately, these blocks are very conventional and are easy to design. In fact, in the case of the power switches they are literally just single PMOS transistors for which their conductance must be simulated. We aim to design a small family of standard cells consisting of various-width PMOS transistors, and simulating their conductance in a similar maner to how standard cell libraries are simulated. Simulation results will be tabulated under various gate, source, and drain conditions over process corners and temperature for use in subsequent non-SPICE simulations, just as in standard cell developement. Additional conductance beyond the small library can be easily attained by adding more cells in parallel. 
+
+The comparator, on the other hand, is only a single block that will be designed and simulated using conventional SPICE-level simulations. Monte Carlo simulation will be used to estimate worst-case offset, input-referred noise, and delay across PVT, which will be used to create a performance look-up table for use in subsequent non-SPICE simulations. 
+
 
 \paragraph{Testing the DLDO RTL and Gate-Level Models}
 Since the digital control is fully synthesized, its performance can be
 well described by RTL simulations. As with the PLL, we can test the full
-DLDO using a mix of Verilog RTL and gate-level modeling. We can also
-accurately predict performance such as loop dynamics in response to load
-or reference voltage changes. \fixme{Patrick, more here?}
+DLDO using a mix of Verilog RTL and VerilogA look-up-table models of the PMOS power transistors and comparator.  With this simulation setup, we can
+accurately predict performance metrics such as loop dynamics in response to load
+or reference voltage changes. 
 
-\paragraph{Testing the DLDO Extracted Transistor-Level Models}
-We can use the extracted transistor-level models of the DLDO to do final
-verification of the DLDO functionality. \fixme{Patrick, more here?}
 
 \paragraph{Using DLDO Post-Silicon Configuration to Avoid Pre-Silicon Verification}
-Our new SAR DLDO architecture with PD compensation and buck-like
+Our new SAR DLDO architecture with proportional-derivative (PD) compensation and buck-like
 duty-control is naturally stable across a wide range of practical load
 conditions. Unlike conventional linear-search DLDO architectures, which
 have limited load regulation ranges (set by the width of a single finger
