@@ -1,0 +1,136 @@
+%=========================================================================
+% sec-full-sys-functional
+%=========================================================================
+
+\section{Full-System Functional Verification Strategy}
+
+Each tape-in is an instance of a complete chip, but which only implements
+a subset of the desired final functionality. Each tape-in gradually adds
+more complexity until we converge on the final full-system. Each tape-in
+includes the basejump I/O and adheres to the pin-out constraints of the
+final chip. Each tape-in supports end-to-end testing in simulation of the
+BaseJump Daughterboard from the gateway FPGA firmware out to the PCB and
+into the ASIC. Each tape-in comes with tests that are loaded into the
+gateway FPGA, which then drive packets through the \TT{bsg\_comm}
+interface to accurately simulate communication between the gateway FPGA
+and ASIC. The exact same testing infrastructure can be used to test an
+actual tape-out, and indeed this is a key part of our post-silicon
+bring-up strategy for the final CERTUS SoC. Each of the incremental
+tape-ins are briefly described below.
+
+\smallskip
+\begin{cbxlist}{1.5em}{0em}{0.5em}
+  \raggedright
+
+  \item \IT{Basejump I/O:} Our first tape-in includes just the basejump
+     I/O for loop-back testing. This tape-in helps test the
+     source-synchronous off-chip communication interfaces, the on-chip
+     asynchronous interfaces, and the overall end-to-end testing
+     methodology. This tape-in also enables testing the \TT{bsg\_tag}
+     interface: a write-only JTAG-like interface that uses 3 pins to set
+     configuration bits on multiple devices in a chain. Later physical
+     verification of this tape-in enables testing pad-ring instantiation
+     in our ASIC flow.
+
+  \item \IT{Basejump I/O with Single Vanilla-5 Core:} This tape-in
+     includes a single Vanilla-5 core along with the associated SRAMs for
+     instruction and data memories. Self-checking test programs are
+     loaded from the gateway FPGA into the Vanilla-5 cores' instruction
+     memory through the basejump I/O and \TT{bsg\_comm} interface. The
+     Vanilla-5 core can send test results back to the gateway FPGA also
+     through the basejump I/O and the \TT{bsg\_comm} interface. Later
+     physical verification of this tape-in enables testing the use of
+     SRAMs in our ASIC flow.
+
+  \item \IT{Basejump I/O with Vanilla-5 Ten-Core:} This tape-in includes
+     ten Vanilla-5 cores interconnected through a simple mesh network.
+     The mesh network is directly connected to the basejump I/O and
+     \TT{bsg\_comm} interface. This enables the gateway FPGA to send and
+     receive messages through the on-chip mesh network. As with the
+     previous tape-in, self-checking test programs can be loaded from the
+     gateway FPGA into each of the Vanilla-5 cores' instruction memories,
+     and the Vanilla-5 cores's can send test results back to the gateway
+     FPGA. Later physical verification of this tape-in enables testing
+     the hierarchical ASIC flow.
+
+  \item \IT{Basejump I/O with Single Rocket Core:} This tape-in includes
+     a single rocket core with nothing attached to the RoCC interface.
+     The back-side of the Rocket instruction and data caches use the
+     NASTI interface from UC Berkeley. Adapters are used to connect this
+     interface to the basejump I/O. Memory requests due to cache misses
+     from the Rocket core are serviced by the gateway FPGA through the
+     \TT{bsg\_comm} interface. A self-checking test program is loaded
+     into the gateway FPGA and executed by the Rocket core after reset.
+     The gateway FPGA can snoop memory write requests from the Rocket
+     core to check the test results.
+
+  \item \IT{Basejump I/O with Rocket+Manycore Composition:} This tape-in
+     includes the single Rocket core from a previous tape-in composed
+     with the Vanilla-5 manycore. The Rocket core manages the Vanilla-5
+     manycore via the RoCC interface. As in the previous tape-in the
+     back-side of the Rocket instruction and data caches are connected to
+     the basejump I/O and gateway FPGA. The Vanilla-5 manycore does not
+     have a direct connection to the basejump I/O. A self-checking test
+     program is loaded into the gateway FPGA and executed by the Rocket
+     core after reset. This test program will in turn load instructions
+     and data into the Vanilla-5 manycore. The Rocket core will monitor
+     the execution of the Vanilla-5 manycore and write results to main
+     memory. The gateway FPGA can snoop memory write requests from the
+     Rocket core to check the test results.
+
+  \item \IT{Basejump I/O with Rocket+Accelerator Composition:} This
+     tape-in includes the single Rocket core from a previous tape-in
+     composed with the BNN accelerator. The Rocket core manages the BNN
+     accelerator via the RoCC interface. As in the previous tape-in the
+     back-side of the Rocket instruction and data caches are connected to
+     the basejump I/O and gateway FPGA. A self-checking test program is
+     loaded into the gateway FPGA and executed by the Rocket core after
+     reset. This test program will in turn configure and start the BNN
+     accelerator. Note that unlike the Rocket+Manycore composition, the
+     BNN accelerator has a direct connection to the Rocket data cache and
+     will cause its own memory requests to go out to the gateway FPGA.
+     The Rocket core will monitor the execution of the BNN accelerator,
+     and ensure all test results are flushed to the gateway FPGA for
+     verification.
+
+  \item \IT{Basejump I/O with Rocket+Manycore and Rocket+Accelerator
+    Composition:} This tape-in simply composes the previous two tape-ins.
+     Testing is identical to the approach used in the previous tape-ins.
+     This tape-in helps test the ability of the basejump I/O to support
+     multiple clients and for the gateway FPGA to manage multiple memory
+     request streams from different on-chip Rocket cores.
+
+  \item \IT{Basejump I/O with Single Rocket Core with the PLL:} This
+     tape-in includes the single Rocket core from a previous tape-in with
+     the on-chip synthesizable PLL. The PLL is configured through a
+     dedicated off-chip SPI interface and generates the clock for the
+     Rocket core. Co-simulation of the Rocket RTL and PLL gate-level
+     models is possible through careful configuration of the PLL to avoid
+     the need for behavior which cannot be captured in gate-level
+     simulation. Later physical verification of this tape-in enables
+     testing integrating mixed-signal clocking subsystems into our ASIC
+     flow.
+
+  \item \IT{Basejump I/O with Vanilla-5 Ten-Core with the DLDO:} This
+     tape-in includes the Vanilla-5 ten-core from a previous tape-in with
+     the on-chip synthesizable DLDO. The DLDO does not really play a role
+     in RTL verification, so the primary purpose of this tape-in is to
+     enable later physical verification of integrating mixed-signal power
+     regulation subsystems into our ASIC flow.
+
+  \item \IT{Basejump I/O with Rocket+Manycore, Rocket+Accelerator,
+    Vanilla-5 Ten-Core, PLL, DLDO:} This is the final tape-out which
+     composes the previous tape-ins into the complete CERTUS SoC. The
+     Rocket+manycore, Rocket+accelerator, and the Vanilla-5 ten-core are
+     connected to the basejump I/O and then the \TT{bsg\_comm} interface;
+     the mixed-signal DLDO is connected to the top-level configuration
+     pins and the Vanilla-5 ten-core; and the mixed-signal PLL is
+     connected to its dedicated off-chip SPI interface and is used to
+     clock the entire chip. The \TT{bsg\_tag} interface is used where
+     necessary for out-of-band configuration. For example, the
+     \TT{bsg\_tag} interface can disable a subsystem (e.g., one of the
+     Rocket cores) or enable scanning out specific internal buses for
+     post-silicon debugging and testing.
+
+\end{cbxlist}
+

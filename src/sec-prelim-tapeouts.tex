@@ -1,0 +1,18 @@
+%=========================================================================
+% sec-prelim-tapeouts
+%=========================================================================
+
+\section{Preliminary Subsystem Tape-Outs}
+
+To validate many of the components that we have created, we have done two
+TSMC 180nm tapeouts. The first was a design that contained the BSG
+Commlink, a BSG Tag chain, and a fully digital clock generators that were
+configured by the BSG Tag unit. This goal of this tapeout was validation
+of both the BSG Commlink and BSG Tag as well as all the BSG IP cores that
+we used to compose these two components. Both the BSG Commlink and BSG
+Tag are source-synchronous and therefore require strict timing
+constraints to work. The second tapeout was the same as the first with
+the addition of a 10-core Manycore. Building on the first tapeout, the
+goal of the second tapeout was further validation on the BSG IP core
+library as well as validation of the BSG Manycore design.
+

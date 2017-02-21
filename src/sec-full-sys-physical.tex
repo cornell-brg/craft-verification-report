@@ -1,0 +1,173 @@
+%=========================================================================
+% sec-full-sys-physical
+%=========================================================================
+
+\section{Full-System Physical Verification Strategy}
+
+The final phase of our overall verification strategy involves physical
+verification of each ``tape-in'' produced through the previous phase. We
+can divide this phase into three sub-phases: front-end verification,
+back-end verification, and manufacturing verification.
+
+\smallskip
+\paragraph{Front-End Verification}
+We are using Synopsys Design Compiler to synthesize the tape-in RTL into
+a gate-level netlist. Front-end verification occurs on this
+post-synthesis gate-level netlist.
+
+\smallskip
+\begin{cbxlist}{1.5em}{0em}{0.5em}
+
+  \item \IT{Functional Gate-Level Simulation:} We first run the
+     full-system functional tests (using the end-to-end testing framework
+     described in the previous section) on the post-synthesis gate-level
+     netlist without any timing information. This kind of testing can
+     identify simulation/synthesis mismatch errors, tool configuration
+     errors, and errors in the tools themselves.
+
+  \item \IT{Back-Annotated Gate-Level Simulation:} We then run the
+     full-system functional tests (again using the end-to-end testing
+     framework described in the previous section) on the post-synthesis
+     gate-level netlist with back-annotated timing information. These
+     netlists may include gate-level models of mixed-signal subsystems
+     (e.g., the PLL in a reduced mode of operation). This kind of testing
+     can identify setup time and hold time violations, and can also
+     partially verify correct integration of the processor/accelerator
+     subsystems with the mixed-signal subsystems.
+
+  \item \IT{Logical Equivalence Checking:} We use Cadence Conformal to
+     perform formal equivalence checking between the original RTL and the
+     post-synthesis gate-level netlist. This kind of testing can identify
+     tool configuration errors and errors in the tools themselves.
+
+\end{cbxlist}
+
+\smallskip
+\paragraph{Back-End Verification}
+We are using Cadence Innovus to place-and-route the post-synthesis
+gate-level netlist. We also use Cadence Innovus for floor planning, power
+routing, clock routing, and I/O pad placement. The output of this
+subphase is the final GDS.
+
+\smallskip
+\begin{cbxlist}{1.5em}{0em}{0.5em}
+
+  \item \IT{Functional Gate-Level Simulation:} We run the full-system
+     functional tests (using the end-to-end testing framework described
+     in the previous section) on the post-pnr gate-level netlist without
+     any timing information. These netlists will include the clock tree
+     network along with results of gate resizing, additional buffer
+     insertion, and local re-synthesis. This kind of testing can identify
+     tool configuration errors, and errors in the tool themselves.
+
+  \item \IT{Back-Annotated Gate-Level Simulation:} We then run the
+     full-system functional tests (using the end-to-end testing framework
+     described in the previous section) on the post-pnr gate-level
+     netlist with back-annotated timing information. This kind of testing
+     can identify setup time and hold time violations, and can also
+     partially verify correct integration of the processor/accelerator
+     subsystems with the mixed-signal subsystems.
+
+  \item \IT{Logical Equivalence Checking:} We use Cadence Conformal to
+     perform formal equivalence checking between the post-synthesis
+     gate-level netlist and the post-pnr gate-level netlist. This kind of
+     testing can identify tool configuration errors and errors in the
+     tools themselves.
+
+  \item \IT{Interconnect Design Rule Check:} We use Cadence Innovus to do
+     a preliminary DRC check on the metal interconnect to indicate if any
+     metal layer DRC rules are violated. This step helps identify
+     problems before exporting and running the design through full DRC.
+
+  \item \IT{Connectivity Check:} We use Cadence Innovus to do a
+     connectivity check on the final design. This kind of check can
+     detect opens, unconnected wires (geometric antennas), unconnected
+     pins, loops, partial routing, and unrouted nets.
+
+  \item \IT{Antenna Check:} We use Cadence Innovus to identify process
+     antenna effects (PAE) and maximum floating area violations.
+
+  \item \IT{Timing Check:} We use Cadence Innovus to do preliminary
+     static timing analysis based on Innovus RC extraction.
+
+  \item \IT{Block-Level Design Rule Check:} We use Calibre to do a
+     block-level DRC against the foundry-provided design rules.
+
+\end{cbxlist}
+
+\smallskip
+\paragraph{Manufacturing Verification}
+We perform final verification on the GDS produced from the previous
+subphase. Once these final verification steps are complete, the GDS is
+ready for fabrication.
+
+\smallskip
+\begin{cbxlist}{1.5em}{0em}{0.5em}
+
+  \item \IT{Dummy Pre-Checker Design Rule Check:} We use utilities from
+     TSMC to insert extra metals and other layers to ensure density and
+     manufacturability rules are satisfied. It is also required to pass
+     full DRC. TSMC strongly recommends running a subset of the full DRC
+     before running the Dummy Fill utilities. This identifies potentially
+     unfriendly layouts in order to ensure that the geometries generated
+     by utilities are legal.
+
+  \item \IT{Full-Chip Design Rule Check:} is performed using Calibre. It
+     checks the design against the foundry-provided (TSMC) design rules,
+     which ensure proper manufacturing and yield. In addition to the
+     standard DRC rule deck, we also run DRCs on the followi DRC antenna
+     rule deck DRC bump rule deck
+
+  \item \IT{Layout vs. Schematic Check:} compares the post-layout netlist
+     versus the netlist extracted from the actual layout. This step is to
+     ensure that the design was laid out correctly and matches the
+     intended design.
+
+  \item \IT{Timing Signoff:} is performed using Primetime. It uses the
+     extracted parasitics from the layout to perform a timing check. This
+     step ensures that the setup times and hold times for the design are
+     being met. It also verifies the skew on the clock nets and reports
+     clock timing. The timing checks also consider crosstalk noise on the
+     nets providing a stricter timing constraint.
+
+  \item \IT{Signal Integrity Signoff:} is performed using Primetime. It
+     uses the extracted parasitics from the layout to measure
+     cross-capacitance from nearby wires and check for instances where
+     signals could interfere with each other. This check helps prevent
+     transient errors due to signals switching at the same time. We check
+     for different kinds of noise; above-low, above-high, below-low and
+     below-high.
+
+  \item \IT{IR Drop Signoff:} is performed using Cadence Voltus. It performs
+     static power analysis and static and dynamic rail analysis. It
+     provides the detailed leakage, internal and switching power reports
+     of the design. It also analyzes the power distribution grid and
+     determines voltage losses due to the resistances in the power grid
+     for both the static and dynamic operations. It determines whether
+     the power grid density needs to be increased to decrease the overall
+     resistance to acceptable levels, otherwise transient runtime errors
+     can be caused by low voltages.
+
+  \item \IT{Electromigration Signoff:} is performed using Cadence Voltus.
+     It ensures higher yields and longevity of the chip by calculating
+     losses in wire integrity due to electromigration effects. This step
+     is more important for high-volume, commercial products that require
+     high durability.
+
+  \item \IT{Layout Patterning Check and Shape Simulation:} is strongly
+     recommended by TSMC for manufacturing. It provides the layout
+     simulation according to the photo process sensitivity (photo energy,
+     depth of focus, and mask error factor), after the OPC (Optical
+     Proximity Correction) is applied. The purpose of LPC is to provide a
+     simulation result, which we can use to avoid unfriendly designs and
+     hot-spots for manufacturing. It can be run on the cell or chip
+     level.
+
+  \item \IT{Virtual Chemical Mechanical Polishing, Thickness Simulation}
+     is strongly recommended by TSMC for manufacturing. It is to predict
+     the thickness of the Cu \& IMD across the die and to identify the
+     critical non-uniform metal thickness as hot-spots. It allows us to
+     minimize the thickness variation by proper dummy filling or metal
+     slotting.
+
+\end{cbxlist}
