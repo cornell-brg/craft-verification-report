@@ -26,7 +26,6 @@
 
 \RequirePackage{geometry}     % Page layout
 \RequirePackage{caption}      % Flexibly configure captions
-\RequirePackage{subcaption}   % Subfigure captions
 \RequirePackage{graphicx}     % To include graphics
 \RequirePackage{textcomp}     % For non-math characters (eg. mu)
 \RequirePackage{cite}         % Sort cite lists [1,2,3]
