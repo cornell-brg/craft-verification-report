@@ -4,15 +4,37 @@
 
 \section{Preliminary Subsystem Tape-Outs}
 
-To validate many of the components that we have created, we have done two
-TSMC 180nm tapeouts. The first was a design that contained the BSG
-Commlink, a BSG Tag chain, and a fully digital clock generators that were
-configured by the BSG Tag unit. This goal of this tapeout was validation
-of both the BSG Commlink and BSG Tag as well as all the BSG IP cores that
-we used to compose these two components. Both the BSG Commlink and BSG
-Tag are source-synchronous and therefore require strict timing
-constraints to work. The second tapeout was the same as the first with
-the addition of a 10-core Manycore. Building on the first tapeout, the
-goal of the second tapeout was further validation on the BSG IP core
-library as well as validation of the BSG Manycore design.
+UCSD has fabricated three preliminary test chips to verify various
+compoments that will be used in the final CERTUS SoC. Even though these
+test chips are in older technologies, the corresponding design,
+implementation, and testing process still provides invaluable experience
+in managing the ASIC toolflow and mitigating physical design issues. Each
+of these three preliminary test chips are briefly described below.
+
+\paragraph{Basejump I/O Test Chip}
+This test chip is similar in spirit to the first tape-in described in
+Section~\ref{sec-full-sys-functional}. It was fabricated in a TSMC 180nm
+technology to test basejump I/O including the \TT{bsg\_comm} interface,
+\TT{bsg\_tag} interface, and a simple, fully digital clock generator. The
+clock generator was configured through the \TT{bsg\_tag} interface. This
+test chip verified the strict timing constraints required by the
+source-synchronous signaling protocol used in both the \TT{bsg\_comm} and
+\TT{bsg\_tag} interfaces. The simple, fully digital clock generator will
+likely be included on the CERTUS SoC as a back-up for the more complex
+PLL.
+
+\paragraph{Vanilla-5 Ten-Core Test Chip}
+This test chip is similar in spirit to the third tape-in described in
+Section~\ref{sec-full-sys-functional}. It was fabricated in a TSMC 180nm
+technology and included ten Vanilla-5 cores each with their own
+instruction and data memories. The cores are interconnected by the mesh
+network, and this mesh network is in turn connected to the basejump I/O.
+
+\paragraph{DLDO Test Chip}
+This test chip was fabricated in a TSMC 65nm technology and included just
+the digital low-drop-out regulator. This chip validated concepts of PD
+control to enable stability over large load impedance ranges, and
+duty-control to enable wide dynamic load current range. The silicon
+results matched the initial simulation results. This validated our
+overall approach and helps to reducing risk for the CERTUS SoC.
 

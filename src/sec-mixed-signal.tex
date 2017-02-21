@@ -4,3 +4,118 @@
 
 \section{Mixed-Signal Subsystem Functional Verification Strategy}
 
+Working with mixed-signal subsystems can be one of the most challenging
+aspects of modern SoC design. In this project, we use all digital,
+synthesizable mixed-signal subsystems to facilitate rapid design,
+implementation, verification, and porting. The digital PLL is based is
+based on a first-order $\Delta\Sigma$ frequency to digital converter
+(FDC). The FDC output is added to a desired value controlled via an
+off-chip SPI interface, then accumulated and filtered. The filter's
+output controls the frequency of one of two ring oscillators that cover
+different frequency ranges. The DLDO is digital in the sense that the
+feedback control is completely digital. Rather than modulating the
+conductance of a single PMOS pass transistor, we use an array of
+binary-weighted, digitally-driven PMOS transistors. We use a mix of
+system-, register-transfer-, gate-, and transistor-level modeling to
+verify both the PLL and DLDO in isolation.
+
+\paragraph{Validating the PLL Using a System-Level Model}
+The PLL is a feedback system that must be carefully designed to meet the
+target frequency, phase noise, and settling time requirements. A
+bit-exact C language simulator has been written to verify that the design
+meets these requirements and matches the behavior predicted by
+theoretical analysis. The simulator uses an event-driven algorithm to
+rapidly simulate the PLL's output phase error as a function of time. It
+models each block within the PLL and includes noise sources as well as
+quantization effects from the finite bit widths of the internal digital
+busses. The program's inputs are the SPI control settings, and its output
+is a sequence of output edge times or phase error samples. The output
+sequences are used to evaluate settling time and jitter, and to calculate
+the output phase noise spectra (the spectra are calculated via subsequent
+Matlab processing). The dedicated C-language simulation program was
+written to achieve very rapid yet precise simulations, because long
+sequences of phase error samples are needed to verify performance.
+
+\paragraph{Testing the PLL RTL and Gate-Level Models}
+A Verilog RTL model was created to implement the control logic, and
+various other components of the PLL were modeled abstractly using
+Verilog-A. Similarly, post-pnr gate-level models can be simulated along
+with Verilog-A models for further verification. Verilog mixed-signal was
+performed for numerous test vectors and the results were compared to the
+corresponding C language simulator results to verify that the Verilog RTL
+model matches the planned design.
+
+\paragraph{Testing the PLL Extracted Transistor-Level Models}
+As described in the specification document the digital PLL consists of
+several digital blocks and a bank of digitally controlled oscillators
+(DCOs). Each DCO contains an inverter-based ring oscillator and each of
+the ring oscillator's nodes drives the input of a NAND gate. The
+parasitic capacitance of the NAND gate input is changed by changing the
+state of the NAND gate's other input, thereby enabling digital control of
+the ring oscillator's output frequency. Multiple DCOs are necessary to
+cover the PLL's required wide output frequency range with enough overlap
+to account for process, supply voltage, and temperature (PVT) variations.
+For any given output frequency setting, only one DCO is in use. This DCO
+is called the active DCO.
+
+Nearly all of the PLL's digital blocks are clocked by edges that are
+synchronous with the output of the active DCO, and the rest are
+synchronous with reference clock. Hence, all of these blocks can be
+synthesized, simulated, and placed and routed with standard digital
+tools. The DCOs consist only of standard-cell digital logic, so they too
+can be synthesized, and placed and routed with standard digital tools,
+but their transistor-level simulation requirements are more involved than
+those of the other PLL blocks. The DCO frequencies depend on parasitic
+capacitances and are controlled by modulating parasitic capacitances, so
+standard digital simulators are not reliable in predicting the DCO
+frequency ranges and they are unable to predict DCO phase noise.
+
+Instead the DCOs are simulated by exacting each DCO from a full version
+of the PLL layout (to take proximity and shape effects into account) with
+some minor modifications to prevent non-DCO blocks from being simulated
+(to reduce simulation time), and then running transistor-level SPICE
+simulations. The number of DCOs, and the number and strength of inverters
+within each DCO are iteratively adjusted, re-synthesized, re-extracted,
+and re-simulated until the bank of DCOs has the necessary frequency range
+and phase noise performance. Transient simulations are used to predict
+frequencies and periodic steady state simulations are used to predict
+phase noise performance throughout this iterative process. It is hoped
+that this iterative design process can be automated in the future.
+
+\paragraph{Testing the DLDO Custom Cell Transistor-Level Models}
+The power switches and comparators are the only part of the mixed-signal
+subsystem that do not use standard cells. Fortunately, very simple
+transistor-level simulations can be performed to characterize their
+respective metrics, very similar to how conventional digital standard
+cells are characterized before being included in standard-cell libraries.
+\fixme{Patrick, more here?}
+
+\paragraph{Testing the DLDO RTL and Gate-Level Models}
+Since the digital control is fully synthesized, its performance can be
+well described by RTL simulations. As with the PLL, we can test the full
+DLDO using a mix of Verilog RTL and gate-level modeling. We can also
+accurately predict performance such as loop dynamics in response to load
+or reference voltage changes. \fixme{Patrick, more here?}
+
+\paragraph{Testing the DLDO Extracted Transistor-Level Models}
+We can use the extracted transistor-level models of the DLDO to do final
+verification of the DLDO functionality. \fixme{Patrick, more here?}
+
+\paragraph{DLDO Post-Silicon Configuration}
+Our new SAR DLDO architecture with PD compensation and buck-like
+duty-control is naturally stable across a wide range of practical load
+conditions. Unlike conventional linear-search DLDO architectures, which
+have limited load regulation ranges (set by the width of a single finger
+of the LDO), and can suffer from instability if the characteristics of
+the load changes, the proposed LDO architecture is robust over many
+possible load conditions. What this means is that if the load
+characteristics change within the design process (say via a change in
+specifications), the design comes in a different corner, or the power
+switch conductance is different than expected, for example, the DLDO
+architecture will still work and perform well. If there are slight
+deviations in performance than what is expected, extra redundancy can be
+enabled after fabrication to bring the design up to specification. The
+ability to provide post-silicon configuration can significantly reduce
+pre-silicon verification, especially for sophisticated mixed-signal
+subsystems.
+
