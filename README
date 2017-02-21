@@ -13,8 +13,6 @@ code. It is recommended that the new 'README' file keep a pointer to
 'albs-uguide.txt'. You may also want to keep the version information
 around so that you know what version of the build system you are using.
 
-testing hooks
-
 --------------------------------------------------------------------------
 Template Instantiation
 --------------------------------------------------------------------------
