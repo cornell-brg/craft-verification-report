@@ -127,21 +127,23 @@ functional verification and full-system physical verification.
 
       \item validating the PLL using a system-level model;
 
-      \item testing the PLL RTL and gate-level models using the
+      \item testing the PLL RTL and gate-level models using system-level
+         model as a golden reference;
+
+      \item testing the PLL extracted transistor-level models using
          system-level model as a golden reference;
-
-      \item testing the 
-
- and DLDO C system-level models using directed
-         unit tests;
 
       \item testing the DLDO custom cell transistor-level models using
          directed unit tests;
 
-      \item testing the PLL and DLDO RTL using directed unit tests;
+      \item testing the DLDO RTL and gate-level models using directed
+         unit tests;
 
-      \item testing the PLL and DLDO extracted transistor-level models
-         using directed unit tests.
+      \item testing the DLDO extracted transistor-level models using
+         directed unit tests;
+
+      \item using DLDO post-silicon configuration to avoid pre-silicon
+         verification.
 
     \end{cbxlist}
 
