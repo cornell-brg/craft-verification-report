@@ -73,16 +73,18 @@ verifying our SystemC implementation.
 % Framework.
 
 \paragraph{Validation of Algorithm}
-The starting point of algorithmic design for the BNN is a manually
-entered description of of the BNN in Python using Theano. We use the
+The starting point of algorithmic design for the BNN is based on an open-source implementation in Python using Theano \footnote{https://github.com/MatthieuCourbariaux}). 
+
+The architecture and training of the BNN is proposed by Courbarieaux et al. and 
+We use the
 MNIST and CFAR10 benchmarks images along with this high-level description
 to validate that the algorithm achieves our design goals in terms of
 classification accuracy and model size. We can also conduct preliminary
 experiments to explore methods to improve the performance of the BNN
 (e.g., spectral decomposition methods). We compared the performance of
 BNN accelerator with the original floating-point convolutional neural
-network on the CIFAR10 testing dataset, and we measured the image
-classification error-rate to be $\approx$11.4\%. \fixme{I don't
+network on the 10000 images in the CIFAR10 testing dataset, and we measured the image
+classification error rate to be $\approx$11.4\%. \fixme{I don't
   understand this. Is the error rate of the floating point CNN also
   11.4\%? Or is the BNN 11.4\% worse than the CNN? Rajesh, can you
   clarify?} This result is close to the state-of-the-art CIFAR10
