@@ -14,11 +14,11 @@ of these three preliminary test chips are briefly described below.
 \paragraph{Basejump I/O Test Chip}
 This test chip is similar in spirit to the first tape-in described in
 Section~\ref{sec-full-sys-functional}. It was fabricated in a TSMC 180nm
-technology to test basejump I/O including the \TT{bsg\_comm} interface,
+technology to test basejump I/O including the \TT{bsg\_comm\_link} interface,
 \TT{bsg\_tag} interface, and a simple, fully digital clock generator. The
 clock generator was configured through the \TT{bsg\_tag} interface. This
 test chip verified the strict timing constraints required by the
-source-synchronous signaling protocol used in both the \TT{bsg\_comm} and
+source-synchronous signaling protocol used in both the \TT{bsg\_comm\_link} and
 \TT{bsg\_tag} interfaces. The simple, fully digital clock generator will
 likely be included on the CERTUS SoC as a back-up for the more complex
 PLL.

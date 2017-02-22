@@ -10,11 +10,11 @@ instruction and data caches and can run complex C/C++ applications. The
 Vanilla-5 core is much simpler. It includes smaller instruction and data
 local memories and can run simple C applications using a remote store
 programming model. The Rocket core design uses open-source Chisel-based
-IP from UC Berkeley, while the Vanilla-5 core was designed by the CERTUS
+IP from UC Berkeley, while the Vanilla-5 core was designed by open source collaborators working with the CERTUS
 team.
 
 \paragraph{Testing BSG RTL Component Library}
-We are using the BSG RTL component library previously developed at UCSD.
+We are using the open source BSG RTL component library, bsg\_ip\_cores, which was developed for teaching hardware design concepts to UCSD students.
 This library includes muxes, counters, arbiters, decoders, encoders,
 arithmetic blocks, queues, register files, and memories. Each component
 includes unit tests to verify functionality. Because these components are
@@ -23,15 +23,15 @@ set of configurations. We include support for regression testing which
 runs every unit test to ensure that modifications do not break other
 components with dependencies. The BSG RTL component library enables reuse
 across other parts of the SoC. For example, approximately 62 of the 65
-modules that make up \TT{bsg\_comm} interface, and approximately 100 of
+modules that make up the \TT{bsg\_comm\_link} interface, and approximately 100 of
 the 122 modules that make up the Vanilla-5 ten-core come from the BSG IP
-core library.
+core library. 
 
 \paragraph{Testing the On-Chip Network RTL}
 We unit test the on-chip mesh network in isolation by using custom test
-harnesses. These tests inject various messages into network input
-terminals and verifying these messages are ejected at the correct output
-terminal.
+harnesses. These tests inject various message patterns into network input
+terminals and verify the messages are ejected at the correct output
+terminal. Additionally, the manycore ISA provides low-level access to the on-chip network, which allows testing of low-level parameters like fairness using short programs.
 
 \paragraph{Testing Single Vanilla-5 Core RTL}
 To test a single Vanilla-5 core we use 47 carefully crafted,

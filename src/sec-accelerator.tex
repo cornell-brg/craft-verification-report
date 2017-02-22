@@ -235,9 +235,9 @@ between the Rocket core, the BNN accelerator, and the memory management
 unit. In fact, we identified a critical issue through this final
 integration testing. All RoCC accelerators in the version of the Rocket
 core used in this project use physical addresses and thus never causes
-page faults. Unfortunately, the proxy-kernel software-stack relies on
+page faults. The Berkeley proxy-kernel software-stack relies on
 page faults to implement lazy program loading and dynamic memory
 initialization. Our work-around is to make sure that any page which the
 accelerator accesses is first touched by the Rocket core to ensure
-corresponding page is already loaded/initialized in physical memory.
+corresponding page is already loaded/initialized in physical memory. We are working on modifying the proxy-kernel to support physical-memory modes.
 

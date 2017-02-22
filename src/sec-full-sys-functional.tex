@@ -12,7 +12,7 @@ includes the basejump I/O and adheres to the pin-out constraints of the
 final chip. Each tape-in supports end-to-end testing in simulation of the
 BaseJump Daughterboard from the gateway FPGA firmware out to the PCB and
 into the ASIC. Each tape-in comes with tests that are loaded into the
-gateway FPGA, which then drive packets through the \TT{bsg\_comm}
+gateway FPGA, which then drive packets through the \TT{bsg\_comm\_link}
 interface to accurately simulate communication between the gateway FPGA
 and ASIC. The exact same testing infrastructure can be used to test an
 actual tape-out, and indeed this is a key part of our post-silicon
@@ -33,15 +33,15 @@ instantiation in our ASIC flow.
 This tape-in includes a single Vanilla-5 core along with the associated
 SRAMs for instruction and data memories. Self-checking test programs are
 loaded from the gateway FPGA into the Vanilla-5 cores' instruction memory
-through the basejump I/O and \TT{bsg\_comm} interface. The Vanilla-5 core
+through the basejump I/O and \TT{bsg\_comm\_link} interface. The Vanilla-5 core
 can send test results back to the gateway FPGA also through the basejump
-I/O and the \TT{bsg\_comm} interface. Later physical verification of this
+I/O and the \TT{bsg\_comm\_link} interface. Later physical verification of this
 tape-in enables testing the use of SRAMs in our ASIC flow.
 
 \paragraph{Basejump I/O with Vanilla-5 Ten-Core}
 This tape-in includes ten Vanilla-5 cores interconnected through a simple
 mesh network. The mesh network is directly connected to the basejump I/O
-and \TT{bsg\_comm} interface. This enables the gateway FPGA to send and
+and \TT{bsg\_comm\_link} interface. This enables the gateway FPGA to send and
 receive messages through the on-chip mesh network. As with the previous
 tape-in, self-checking test programs can be loaded from the gateway FPGA
 into each of the Vanilla-5 cores' instruction memories, and the Vanilla-5
@@ -54,7 +54,7 @@ RoCC interface. The back-side of the Rocket instruction and data caches
 use the NASTI interface from UC Berkeley. Adapters are used to connect
 this interface to the basejump I/O. Memory requests due to cache misses
 from the Rocket core are serviced by the gateway FPGA through the
-\TT{bsg\_comm} interface. A self-checking test program is loaded into the
+\TT{bsg\_comm\_link} interface. A self-checking test program is loaded into the
 gateway FPGA and executed by the Rocket core after reset. The gateway
 FPGA can snoop memory write requests from the Rocket core to check the
 test results.
@@ -117,7 +117,7 @@ subsystems into our ASIC flow.
 This is the final tape-out which composes the previous tape-ins into the
 complete CERTUS SoC. The Rocket+manycore, Rocket+accelerator, and the
 Vanilla-5 ten-core are connected to the basejump I/O and then the
-\TT{bsg\_comm} interface; the mixed-signal DLDO is connected to the
+\TT{bsg\_comm\_link} interface; the mixed-signal DLDO is connected to the
 top-level configuration pins and the Vanilla-5 ten-core; and the
 mixed-signal PLL is connected to its dedicated off-chip SPI interface and
 is used to clock the entire chip. The \TT{bsg\_tag} interface is used

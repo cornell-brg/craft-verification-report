@@ -5,11 +5,14 @@
 \section{Introduction}
 
 This document describes the verification strategy being used for the
-current CERTUS SoC tapeout on the next CRAFT MPW run. This strategy is a
-work-in-progress and is continuing to evolve as we make progress towards
-the final tapeout deadline. This document also includes discussion of our
-future plans for improving this verification strategy in the later phases
-of the program.
+current CERTUS SoC tapeout on the next CRAFT MPW run.  Our verification strategy is designed to evolve in step with the advances in synthesis and composition methods being pursued in the project. Accordingly, our verification methodology builds upon existing tools and tool flows with parts that are subject to improvement using iterative refinement of the design flow. This document uses commonly accepted terminology where `testing' refers to methods that validate a design against a given testbench via methods that ultimately result in a simulation run followed by comparison of results against an explicit or implicit golden reference. Verification on the other hand usually refers to methods that seek to establish confidence in the design independent of the simulation conditions either exhaustively or through implicitly exhaustive (such as formal) methods. Term 'validation' is sometimes used to refer to both strategies collectively even though it is also used interchangeably with ``verification.'' This document does not concern with the issue of manufacturing test where standard circuit level testing methodology is deployed across the entire chip design.
+
+%This strategy is a
+%work-in-progress and is continuing to evolve as we make progress towards
+%the final tapeout deadline. 
+%This document also includes discussion of our
+%future plans for improving this verification strategy in the later phases
+%of the program.
 
 \input{fig-toplevel-block-diagram}
 
@@ -41,45 +44,45 @@ These three subsystems are integrated into a full-system via the
 into a simpler internal message interface and then a centralized bus to
 enable the various subsystems to communicate off-chip. Off-chip
 communication is via a simple multi-channel source-synchronous protocol
-called \TT{bsg\_comm}.
+called \TT{bsg\_comm\_link}.
 
 \input{fig-verification-flow}
 
-Figure~\ref{fig-verification-flow} illustrates the five phases
-of our overall verification strategy. Each subsystem is first rigorously
-tested in isolation before the subsystems are combined for full-system
-functional verification and full-system physical verification.
+Figure~\ref{fig-verification-flow} illustrates the five parts 
+of our overall verification strategy. Our SOC design proceeds bottom with the design (or import) of each of the three subsystems mentioned earlier. Thus, each subsystem is first tested in isolation during its design phase before it is composed into full chip design and then subject to full-chip functional and physical verification. Note that the tight-coupling of processor and accelerator subsystems requires their integration and validation. The CERTUS team has devised a processor and accelerator core interface to not only enable robust composition of these two subsystems as well has simplify the validation process as well that is discussed in the following section.
+
+In the following we list the steps taken in each of the five parts followed by a description of rationale and tools used. This is followed by a detailed description of the verification methodology pursued in accelerator design, the primary target of CERTUS architectural and methodological improvements.
 
 \medskip
 \begin{cbxlist}{1.5em}{1em}{1em}
 
  \item The \IT{processor subsystem functional RTL verification strategy}
-    includes:
+    is centered around functional testing via executable descriptions of the processor subsystem. Given a well-defined operational semantics of the processor functions, {\bf model execution} provides the easiest and fastest means to validate this system. Most modern validation tools provide the capability to automatically generate randomized testbenches under user-specified constraints for processor-centric designs. Using these facilities, we perform the following individual tests of main components:
 
     \smallskip
     \begin{cbxlist}[--]{1.5em}{0em}{0em}
       \raggedright
 
-      \item testing BSG RTL component library using directed and random
+      \item test BSG RTL component library using directed and random
          unit tests;
-      \item testing the on-chip network RTL using directed and random
+      \item test the on-chip network RTL using directed and random
          tests;
 
-      \item testing single Vanilla-5 core RTL using self-checking
+      \item test single Vanilla-5 core RTL using self-checking
          assembly test programs;
 
-      \item testing the Vanilla-5 ten-core/manycore RTL using small C
+      \item test the Vanilla-5 ten-core/manycore RTL using small C
          test programs;
 
-      \item testing a single Rocket core RTL using self-checking
+      \item test a single Rocket core RTL using self-checking
          assembly and small C test programs;
 
-      \item testing the Rocket+manycore RTL using small C test programs;
+      \item test of the Rocket+manycore RTL using small C test programs.
 
     \end{cbxlist}
 
  \item The \IT{accelerator subsystem functional RTL verification
-   strategy} includes:
+   strategy} consists of a combination of algorithm validation, testing of the accelerator and processor composition and validation of the accelerator design as it goes through iterative refinement and high-level synthesis processes. The latter are subject to new methodological improvements discussed later in this report. In particular, we performn the following steps:
 
     \smallskip
     \begin{cbxlist}[--]{1.5em}{0em}{0em}
@@ -103,39 +106,39 @@ functional verification and full-system physical verification.
 
     \end{cbxlist}
 
- \item The \IT{mixed-signal subsystem functional verification} includes:
+ \item The \IT{mixed-signal subsystem functional verification} uses a combination of digital circuit validation as well as post-silicon validation. {\bf The latter forms a major component of our innovations and attempts to improve the SOC design and validation process that seeks to dramatically reduce the time used in pre-silicon design and validation tasks.} In particular, of mixed-signal validation strategy consists of the following steps that are designed to run in parallel for different analog blocks:
 
     \smallskip
     \begin{cbxlist}[--]{1.5em}{0em}{0em}
       \raggedright
 
-      \item validating the PLL using a system-level model;
+      \item validating the PLL functional design using a system-level model;
 
       \item testing the PLL RTL and gate-level models using system-level
-         model as a golden reference;
+         model results as a golden reference;
 
       \item testing the PLL extracted transistor-level models using
-         system-level model as a golden reference;
+         system-level model simulation results as a golden reference;
 
       \item testing the DLDO custom cell transistor-level models using
-         directed unit tests;
+         {\bf directed unit tests};
 
       \item testing the DLDO RTL and gate-level models using directed
          unit tests;
 
-      \item using DLDO post-silicon configuration to avoid pre-silicon
+      \item using DLDO {\bf post-silicon configuration} to avoid pre-silicon
          verification.
 
     \end{cbxlist}
 
- \item The \IT{full-system functional verification strategy} uses the
-    concept of iterative ``tape-ins'' towards the final ``tape-out''.
-    Each tape-in is an instance of a complete chip, but which only
+ \item The \IT{full-system functional verification strategy} is 
+ built around the concepts of progressively complex ``tape-ins'' towards a final ``tape-out''. This structure obviates the need for commonly used 
+ `regression runs' early in the chip design process and reduces the amount of validation task significantly at the full-chip level. In the CERTUS context, each tape-in is an instance of a complete chip, but which only
     implements a subset of the desired final functionality. Tape-ins are
     taken through both functional and physical verification. Each tape-in
     gradually adds more complexity until we converge on the final
     full-system. Each tape-in includes the basejump I/O for communicating
-    with the final test board including the \TT{bsg\_comm} and
+    with the final test board including the \TT{bsg\_comm\_link} and
     \TT{bsg\_tag} interfaces and the actual gateware that will be present
     in the test board's FPGA. Tape-in functional verification is done
     primarily through RTL simulation using either directed tests or
@@ -191,7 +194,7 @@ functional verification and full-system physical verification.
 \end{cbxlist}
 
 \medskip\noindent
-In the rest of this document, we go into more depth on each of the
+In the rest of this document, we detail each of the
 five phases of our overall verification strategy. We also describe our
 use of preliminary tape-outs to help verify subsystems, and future plans
 for improving this verification strategy as part of phase 2 and 3 of the
