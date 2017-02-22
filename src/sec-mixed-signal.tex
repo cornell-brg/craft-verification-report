@@ -84,29 +84,41 @@ that this iterative design process can be automated in the future.
 
 \paragraph{Testing the DLDO Custom Cell Transistor-Level Models}
 The power switches and comparators are the only part of the mixed-signal
-subsystem that do not use standard cells. Fortunately, these blocks are very conventional and are easy to design. In fact, in the case of the power switches they are literally just single PMOS transistors for which their conductance must be simulated. We aim to design a small family of standard cells consisting of various-width PMOS transistors, and simulating their conductance in a similar maner to how standard cell libraries are simulated. Simulation results will be tabulated under various gate, source, and drain conditions over process corners and temperature for use in subsequent non-SPICE simulations, just as in standard cell developement. Additional conductance beyond the small library can be easily attained by adding more cells in parallel. 
-
-The comparator, on the other hand, is only a single block that will be designed and simulated using conventional SPICE-level simulations. Monte Carlo simulation will be used to estimate worst-case offset, input-referred noise, and delay across PVT, which will be used to create a performance look-up table for use in subsequent non-SPICE simulations. 
-
+subsystem that cannot leverage commonly available standard cells.
+Fortunately, these blocks are very conventional and are easy to design.
+In fact, in the case of the power switches they are literally just single
+PMOS transistors for which their conductance must be simulated. We are
+designing a small family of custom cells consisting of various-width PMOS
+transistors, and simulating their conductance in a similar maner to how
+standard cell libraries are simulated. Simulation results are tabulated
+under various gate, source, and drain conditions over process corners and
+temperature for use in subsequent gate-level simulations. Additional
+conductance beyond the small custom cell library can be easily attained
+by instantiating cells in parallel. The comparator, on the other hand, is
+a single monolithic block that is designed and simulated using
+conventional transistor-level simulation. Monte Carlo simulation is used
+to estimate worst-case offset, input-referred noise, and delay across
+PVT. Simulation results are then used to create a performance look-up
+table for use in subsequent gate-level simulations.
 
 \paragraph{Testing the DLDO RTL and Gate-Level Models}
 Since the digital control is fully synthesized, its performance can be
 well described by RTL simulations. As with the PLL, we can test the full
-DLDO using a mix of Verilog RTL and VerilogA look-up-table models of the PMOS power transistors and comparator.  With this simulation setup, we can
-accurately predict performance metrics such as loop dynamics in response to load
-or reference voltage changes. 
-
+DLDO using a combination of Verilog RTL and Verilog-A look-up-table
+models of the PMOS power transistors and comparator. With this simulation
+setup, we can accurately predict performance metrics such as loop
+dynamics in response to load or reference voltage changes.
 
 \paragraph{Using DLDO Post-Silicon Configuration to Avoid Pre-Silicon Verification}
-Our new SAR DLDO architecture with proportional-derivative (PD) compensation and buck-like
-duty-control is naturally stable across a wide range of practical load
-conditions. Unlike conventional linear-search DLDO architectures, which
-have limited load regulation ranges (set by the width of a single finger
-of the LDO), and can suffer from instability if the characteristics of
-the load changes, the proposed LDO architecture is robust over many
-possible load conditions. What this means is that if the load
-characteristics change within the design process (say via a change in
-specifications), the design comes in a different corner, or the power
+Our new SAR DLDO architecture with proportional-derivative (PD)
+compensation and buck-like duty-control is naturally stable across a wide
+range of practical load conditions. Unlike conventional linear-search
+DLDO architectures, which have limited load regulation ranges (set by the
+width of a single finger of the LDO), and can suffer from instability if
+the characteristics of the load changes, the proposed LDO architecture is
+robust over many possible load conditions. What this means is that if the
+load characteristics change within the design process (say via a change
+in specifications), the design comes in a different corner, or the power
 switch conductance is different than expected, for example, the DLDO
 architecture will still work and perform well. If there are slight
 deviations in performance than what is expected, extra redundancy can be
