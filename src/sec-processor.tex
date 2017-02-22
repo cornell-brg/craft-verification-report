@@ -4,32 +4,91 @@
 
 \section{Processor Subsystem Functional RTL Verification Strategy}
 
-\paragraph{Testing BSG Library Component RTL}
+The processor subsystem includes larger RISC-V RV64G Rocket cores as well
+as smaller RISC-V RV32IM Vanilla-5 cores. The Rocket core includes 32KB
+instruction and data caches and can run complex C/C++ applications. The
+Vanilla-5 core is much simpler. It includes smaller instruction and data
+local memories and can run simple C applications using a remote store
+programming model. The Rocket core design uses open-source Chisel-based
+IP from UC Berkeley, while the Vanilla-5 core was designed by the CERTUS
+team.
+
+\paragraph{Testing BSG RTL Component Library}
+We are using the BSG RTL component library previously developed at UCSD.
+This library includes muxes, counters, arbiters, decoders, encoders,
+arithmetic blocks, queues, register files, and memories. Each component
+includes unit tests to verify functionality. Because these components are
+highly parameterized, we use parameterized testing to sweep over a broad
+set of configurations. We include support for regression testing which
+runs every unit test to ensure that modifications do not break other
+components with dependencies. The BSG RTL component library enables reuse
+across other parts of the SoC. For example, approximately 62 of the 65
+modules that make up \TT{bsg\_comm} interface, and approximately 100 of
+the 122 modules that make up the Vanilla-5 ten-core come from the BSG IP
+core library.
 
 \paragraph{Testing the On-Chip Network RTL}
+We unit test the on-chip mesh network in isolation by using custom test
+harnesses. These tests inject various messages into network input
+terminals and verifying these messages are ejected at the correct output
+terminal.
 
 \paragraph{Testing Single Vanilla-5 Core RTL}
+To test a single Vanilla-5 core we use 47 carefully crafted,
+self-checking assembly test programs distributed by UC Berkeley as part
+of their RISC-V Vscale design. Each assembly test program tests a single
+type of assembly instruction using different inter-instruction dependency
+conditions, input data designed to trigger corner cases, and random input
+data.
 
 \paragraph{Testing the Vanilla-5 Ten-Core/Manycore RTL}
+We use small C test programs to test a fully connected ten-core or
+manycore design. Whenever a microarchitectural feature is added or bug is
+found, we create one of these C programs that stresses that feature or
+bug to verify its correctness. For example, we have a test which causes
+two data dependencies to occur at the same time while the pipeline is
+stalled. The test harness loads the test program into the Vanilla-5
+instruction memories, and then waits for the Vanilla-5 manycore to return
+the test results.
 
 \paragraph{Testing a Single Rocket Core RTL}
+Initial testing of a single Rocket core uses the comprehensive assembly
+test suite from UC Berkeley. These assembly test programs test all user-
+and supervisor-level instructions. Each test program ensures a given
+implementation correctly handles various hazards and corner cases. More
+specifically, we use the following RISC-V ``test virtual machines'' and
+``test virtual environments'':
+
+\smallskip
+\begin{cbxlist}{1.5em}{0em}{0em}
+  \item \parbox{0.7in}{rv64ui-p}  64-bit user-level, integer only, vm disabled, only core 0 boots
+  \item \parbox{0.7in}{rv64mi-p}  64-bit user-level, mul/div only, vm disabled, only core 0 boots
+  \item \parbox{0.7in}{rv64ui-pt} 64-bit user-level, integer only, vm disabled, all cores boot up
+  \item \parbox{0.7in}{rv64um-pt} 64-bit user-level, mul/div only, vm disabled, all cores boot up
+  \item \parbox{0.7in}{rv64ua-pt} 64-bit user-level, amo only, vm disabled, all cores boot up
+  \item \parbox{0.7in}{rv64ui-v}  64-bit user-level, integer only, vm enabled
+  \item \parbox{0.7in}{rv64um-v}  64-bit user-level, mul/div only, vm enabled
+  \item \parbox{0.7in}{rv64ua-v}  64-bit user-level, amo only, vm enabled
+  \item \parbox{0.7in}{rv64uf-p}  64-bit user-level, integer and floating-point, vm disabled, only core 0 boots
+  \item \parbox{0.7in}{rv64uf-pt} 64-bit user-level, integer and floating-point, vm disabled, all cores boot up
+  \item \parbox{0.7in}{rv64uf-v}  64-bit user-level, integer and floating-point, vm enabled
+  \item \parbox{0.7in}{rv64si-v}  64-bit supervisor-level, integer only
+\end{cbxlist}
+\smallskip
+
+Once we verify the Rocket core using these assembly tests, we then use
+small C test programs running on the bare-metal software stack, meaning
+they do not use the memory management unit nor any system calls. This
+enables testing more complex mixed-instruction interactions. Finally, we
+use these same C test programs along with additional, more complex C test
+programs running on the proxy-kernel software stack. The proxy-kernel
+software stack enables the memory management unit and allows system calls
+to marshalled and sent to a host machine for servicing (i.e.,
+``tethered'' mode).
 
 \paragraph{Testing the Rocket+Manycore RTL}
-
-\fixme{I have some stuff from Mike and I know enough about this to write
-  this up. Don't forget to list these assembly tests.}
-
-UC Berkeley has a folder called isa inside riscv-tests, with:
-
-rv32ui - 32-bit user-level, integer-only
-rv32si - 32-bit supervisor-level, integer-only
-rv64ui - 64-bit user-level, integer only
-rv64uf - 64-bit user-level, integer and floating-point
-rv64uv - 64-bit user-level, integer, floating-point, and vector
-rv64si - 64-bit supervisor-level, integer only
-rv64sv - 64-bit supervisor-level, integer and vector
-
-These folders have programs that exercise one-instruction or one-feature of
-the rocket-chip. For example, one add.S program test the add instruction
-15-times under different inputs.
+We have developed testing infrastructure to verify multiple Rocket cores
+composed with a Vanilla-5 manycore through the RoCC interface. The Rocket
+core loads instructions and data into the manycore and waits for a
+response.
 
