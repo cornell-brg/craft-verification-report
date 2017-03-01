@@ -5,7 +5,11 @@
 \section{Introduction}
 
 This document describes the verification strategy being used for the
-current CERTUS SoC tapeout on the next CRAFT MPW run.  Our verification strategy is designed to evolve in step with the advances in synthesis and composition methods being pursued in the project. Accordingly, our verification methodology builds upon existing tools and tool flows with parts that are subject to improvement using iterative refinement of the design flow. This document uses commonly accepted terminology where `testing' refers to methods that validate a design against a given testbench via methods that ultimately result in a simulation run followed by comparison of results against an explicit or implicit golden reference. Verification on the other hand usually refers to methods that seek to establish confidence in the design independent of the simulation conditions either exhaustively or through implicitly exhaustive (such as formal) methods. Term 'validation' is sometimes used to refer to both strategies collectively even though it is also used interchangeably with ``verification.'' This document does not concern with the issue of manufacturing test where standard circuit level testing methodology is deployed across the entire chip design.
+current CERTUS SoC tapeout on the next CRAFT MPW run.  Our verification strategy is designed to evolve in step with the advances in synthesis and composition methods being pursued in the project. Accordingly, our verification methodology builds upon existing tools and tool flows with parts that are subject to improvement using iterative refinement of the design flow. This document uses commonly accepted and IEEE standard terminology regarding Verification and Validation terms. Specifically, verification refers to checking if an implementation meets the specification ("did we build it right?"). By contrast, validation refers to how well the specification meets the 'customer expectations' ("did we build the right thing?"). This report is concerned primarily with verification issues. 
+This document does not concern with the issue of manufacturing test where standard circuit level testing methodology is deployed across the entire chip design.
+
+% Verification: implementation meets the spec; did we build it right.
+% Validation: does the spec meet the design rules -- did we build the right thing
 
 %This strategy is a
 %work-in-progress and is continuing to evolve as we make progress towards
@@ -51,7 +55,7 @@ called \TT{bsg\_comm\_link}.
 Figure~\ref{fig-verification-flow} illustrates the five parts 
 of our overall verification strategy. Our SOC design proceeds bottom with the design (or import) of each of the three subsystems mentioned earlier. Thus, each subsystem is first tested in isolation during its design phase before it is composed into full chip design and then subject to full-chip functional and physical verification. Note that the tight-coupling of processor and accelerator subsystems requires their integration and validation. The CERTUS team has devised a processor and accelerator core interface to not only enable robust composition of these two subsystems as well has simplify the validation process as well that is discussed in the following section.
 
-In the following we list the steps taken in each of the five parts followed by a description of rationale and tools used. This is followed by a detailed description of the verification methodology pursued in accelerator design, the primary target of CERTUS architectural and methodological improvements.
+In the following, we list the steps taken in each of the five parts followed by a description of rationale and tools used. This is followed by a detailed description of the verification methodology pursued in accelerator design, the primary target of CERTUS architectural and methodological improvements.
 
 \medskip
 \begin{cbxlist}{1.5em}{1em}{1em}
@@ -81,8 +85,8 @@ In the following we list the steps taken in each of the five parts followed by a
 
     \end{cbxlist}
 
- \item The \IT{accelerator subsystem functional RTL verification
-   strategy} consists of a combination of algorithm validation, testing of the accelerator and processor composition and validation of the accelerator design as it goes through iterative refinement and high-level synthesis processes. The latter are subject to new methodological improvements discussed later in this report. In particular, we performn the following steps:
+ \item The \IT{accelerator subsystem functional verification
+   strategy} consists of a combination of algorithm validation, testing of the accelerator and processor composition, and verification of the accelerator design as it goes through iterative refinement and high-level synthesis processes. The latter are subject to new methodological improvements discussed later in this report. In particular, we perform the following steps:
 
     \smallskip
     \begin{cbxlist}[--]{1.5em}{0em}{0em}
@@ -106,7 +110,7 @@ In the following we list the steps taken in each of the five parts followed by a
 
     \end{cbxlist}
 
- \item The \IT{mixed-signal subsystem functional verification} uses a combination of digital circuit validation as well as post-silicon validation. {\bf The latter forms a major component of our innovations and attempts to improve the SOC design and validation process that seeks to dramatically reduce the time used in pre-silicon design and validation tasks.} In particular, of mixed-signal validation strategy consists of the following steps that are designed to run in parallel for different analog blocks:
+ \item The \IT{mixed-signal subsystem functional verification} uses a combination of digital circuit validation as well as post-silicon validation. {\bf The latter forms a major component of our innovations and attempts to improve the SOC design and validation process that seeks to dramatically reduce the time used in pre-silicon design and verification tasks.} In particular, our mixed-signal verification strategy consists of the following steps that are designed to run in parallel for different analog blocks:
 
     \smallskip
     \begin{cbxlist}[--]{1.5em}{0em}{0em}

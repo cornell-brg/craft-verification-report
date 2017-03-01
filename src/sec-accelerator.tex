@@ -2,7 +2,7 @@
 % sec-accelerator
 %=========================================================================
 
-\section{Accelerator Subsystem Functional RTL Verification Strategy}
+\section{Accelerator Subsystem Functional Verification Strategy}
 
 \input{fig-verification-hls}
 
@@ -73,21 +73,9 @@ verifying our SystemC implementation.
 % Framework.
 
 \paragraph{Validation of Algorithm}
-The starting point of algorithmic design for the BNN is based on an open-source implementation in Python using Theano \footnote{https://github.com/MatthieuCourbariaux}). 
-
-The architecture and training of the BNN is proposed by Courbarieaux et al. and 
-We use the
-MNIST and CFAR10 benchmarks images along with this high-level description
-to validate that the algorithm achieves our design goals in terms of
-classification accuracy and model size. We can also conduct preliminary
-experiments to explore methods to improve the performance of the BNN
-(e.g., spectral decomposition methods). We compared the performance of
-BNN accelerator with the original floating-point convolutional neural
-network on the 10000 images in the CIFAR10 testing dataset, and we measured the image
-classification error rate to be $\approx$11.4\%. \fixme{I don't
-  understand this. Is the error rate of the floating point CNN also
-  11.4\%? Or is the BNN 11.4\% worse than the CNN? Rajesh, can you
-  clarify?} This result is close to the state-of-the-art CIFAR10
+The starting point of algorithmic design for the BNN is based on an open-source implementation in Python using Theano developed by Courbarieaux et al.\footnote{https://github.com/MatthieuCourbariaux/BinaryNet}, where the BNN architecture consists of six convolution layers (conv) followed by three fully-connected layers. The first conv layer is different from the rest: its input is the image, which is floating-point, not binary; its weights are still binary. To improve performance and area of our accelerator, we have quantized the BNN inputs to 20-bit fixed point to eliminate float-point operations.  
+%MNIST and CFAR10 benchmarks images along with this high-level description to validate that the algorithm achieves our design goals in terms of classification accuracy and model size. We have also conducted additional experiments to explore methods to improve the performance of the BNN
+(e.g., spectral decomposition methods). Compared to the original open-source implementation, our modified BNN design achieves the same error rate of $\approx$11.4\% on the 10000 images in the CIFAR-10 testing dataset. This result is also close to the state-of-the-art CIFAR-10
 classification result, while potentially having a higher computation
 speed and smaller memory requirement. The result of algorithmic design
 process is creation of a ``golden reference model'' against which all
@@ -98,7 +86,7 @@ subsequent validations take place.
 % parameters and changes the arithmetic operations into bitwise
 % operations thus accelerating the inference algorithm. The
 % implementation of BNN includes reading the Python-trained BNN model
-% parameters to the BNN network and classification of the CIFAR10 image
+% parameters to the BNN network and classification of the CIFAR-10 image
 % dataset. The network is composed to six convolutional layers with 3x3
 % filters, three 2x2 padding layers and three fully-connected layers.
 
@@ -132,14 +120,15 @@ subsequent validations take place.
 
 % For Hardware implementation verification, we provided the C and Python
 % programs and model parameters, along with the expected output of
-% CIFAR10 dataset to accelerator architectural design group at Cornell.
+% CIFAR-10 dataset to accelerator architectural design group at Cornell.
 % The output of the Python program provides the golden reference model
 % that is used in validating the architectural implementation of BNN
 % hardware.
 
 \paragraph{Testing the Manually Written C++ Implementation}
 We manually transform the high-level Python algorithm into a lower-level
-C++ implementation. We use standard software testing practices to verify
+C++ implementation, which allows us to rapidly implement and test the hardware accelerator on an FPGA using the Xilinx Vivado HLS flow.  
+We use standard software testing practices to verify
 that the C++ implementation matches the golden reference model. Our
 simplest test ensures that the C++ model performs 3D convolution and
 binarization correctly on randomly generated feature maps and conv

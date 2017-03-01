@@ -25,13 +25,13 @@ components with dependencies. The BSG RTL component library enables reuse
 across other parts of the SoC. For example, approximately 62 of the 65
 modules that make up the \TT{bsg\_comm\_link} interface, and approximately 100 of
 the 122 modules that make up the Vanilla-5 ten-core come from the BSG IP
-core library. 
+core library. These numbers are indicator of sucess for our standard template library (STL) inspired SystemVerilog hardware design approach. Because the SystemVerilog portions of CERTUS are comprised of bsg\_ip\_cores, the verification and validation of the bsg\_ip\_cores is multiplied up across the designs that use it, creating leverage.
 
 \paragraph{Testing the On-Chip Network RTL}
 We unit test the on-chip mesh network in isolation by using custom test
 harnesses. These tests inject various message patterns into network input
 terminals and verify the messages are ejected at the correct output
-terminal. Additionally, the manycore ISA provides low-level access to the on-chip network, which allows testing of low-level parameters like fairness using short programs.
+terminal. Additionally, the manycore ISA provides low-level access to the on-chip network, which allows testing of low-level parameters like fairness using short RISC-V programs.
 
 \paragraph{Testing Single Vanilla-5 Core RTL}
 To test a single Vanilla-5 core we use 47 carefully crafted,
@@ -90,5 +90,7 @@ to marshalled and sent to a host machine for servicing (i.e.,
 We have developed testing infrastructure to verify multiple Rocket cores
 composed with a Vanilla-5 manycore through the RoCC interface. The Rocket
 core loads instructions and data into the manycore and waits for a
-response.
+response. This enables sophisticated integration tests, where the Rocket
+core interacts with the manycore and at the same time the individual
+cores in the manycore communicate and send messages.
 
